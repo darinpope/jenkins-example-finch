@@ -23,8 +23,8 @@ pipeline {
     stage("Remove the image if it exists") {
       steps {
         sh '''
-          finch rm --force finch-multi-arch:latest
-          finch rm --force $REGSITRY_SERVER/$DH_CREDS_USR/finch-multi-arch:latest
+          finch rmi --force finch-multi-arch:latest
+          finch rmi --force $REGSITRY_SERVER/$DH_CREDS_USR/finch-multi-arch:latest
           finch image ls
         '''
       }
@@ -69,7 +69,12 @@ pipeline {
   }
   post {
     always {
-      sh 'finch logout $REGSITRY_SERVER'
+      sh '''
+        finch logout $REGSITRY_SERVER
+        finch rmi --force finch-multi-arch:latest
+        finch rmi --force $REGSITRY_SERVER/$DH_CREDS_USR/finch-multi-arch:latest
+        finch image ls
+      '''
     }
   }
 }
