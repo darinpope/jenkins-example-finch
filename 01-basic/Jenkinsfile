@@ -27,7 +27,7 @@ pipeline {
     stage("Build the container image") {
       steps {
         dir('01-basic') {
-          sh 'finch build --tag finch-basic:latest'
+          sh 'finch build --tag finch-basic:latest .'
         }
       }
     }
