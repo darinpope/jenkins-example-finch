@@ -2,6 +2,7 @@ pipeline {
   agent any
   environment {
     DH_CREDS=credentials('dockerhub-rwd-pat')
+    DH_ENDPOINT='registry-1.docker.io'
   }
   stages {
     stage("Verify finch installation") {
@@ -43,7 +44,7 @@ pipeline {
     }
     stage("Tag the image to get it ready to push to Docker Hub") {
       steps {
-        sh 'finch tag finch-basic:latest $DH_CREDS_USR/finch-basic:latest'
+        sh 'finch tag finch-basic:latest $DH_ENDPOINT/$DH_CREDS_USR/finch-basic:latest'
       }
     }
     stage("Verify image exists after tag for Docker Hub") {
@@ -53,7 +54,7 @@ pipeline {
     }
     stage("Login to Docker Hub") {
       steps {
-        sh 'echo $DH_CREDS_PSW | finch login -u $DH_CREDS_USR --password-stdin registry-1.docker.io'
+        sh 'echo $DH_CREDS_PSW | finch login -u $DH_CREDS_USR --password-stdin $DH_ENDPOINT'
       }
     }
     stage("Push the image") {
@@ -64,7 +65,7 @@ pipeline {
   }
   post {
     always {
-      sh 'finch logout registry-1.docker.io'
+      sh 'finch logout $DH_ENDPOINT'
     }
   }
 }
