@@ -1,0 +1,75 @@
+pipeline {
+  agent any
+  environment {
+    DH_CREDS=credentials('dockerhub-rwd-pat')
+    REGSITRY_SERVER='registry-1.docker.io'
+  }
+  stages {
+    stage("Verify finch installation") {
+      steps {
+        sh 'finch --version'
+      }
+    }
+    stage("Verify finch status") {
+      steps {
+        sh 'finch vm status'
+      }
+    }
+    stage("Verify finch system info") {
+      steps {
+        sh 'finch system info'
+      }
+    }
+    stage("Remove the image if it exists") {
+      steps {
+        sh '''
+          finch rm --force finch-multi-arch:latest
+          finch rm --force $REGSITRY_SERVER/$DH_CREDS_USR/finch-multi-arch:latest
+          finch image ls
+        '''
+      }
+    }
+    stage("Build the container image") {
+      steps {
+        dir('02-multi-arch') {
+          sh 'finch build --platform linux/arm64,linux/amd64 --tag finch-multi-arch:latest .'
+        }
+      }
+    }
+    stage("Verify image exists before run") {
+      steps {
+        sh 'finch image ls'
+      }
+    }
+    stage("Run the container") {
+      steps {
+        sh 'finch run --rm finch-multi-arch:latest'
+      }
+    }
+    stage("Tag the image to get it ready to push to Docker Hub") {
+      steps {
+        sh 'finch tag finch-multi-arch:latest $REGSITRY_SERVER/$DH_CREDS_USR/finch-multi-arch:latest'
+      }
+    }
+    stage("Verify image exists after tag for Docker Hub") {
+      steps {
+        sh 'finch image ls'
+      }
+    }
+    stage("Login to Docker Hub") {
+      steps {
+        sh 'echo $DH_CREDS_PSW | finch login -u $DH_CREDS_USR --password-stdin $REGSITRY_SERVER'
+      }
+    }
+    stage("Push the image") {
+      steps {
+        sh 'finch push $REGSITRY_SERVER/$DH_CREDS_USR/finch-multi-arch:latest'
+      }
+    }
+  }
+  post {
+    always {
+      sh 'finch logout $REGSITRY_SERVER'
+    }
+  }
+}
