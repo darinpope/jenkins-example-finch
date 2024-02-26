@@ -26,10 +26,12 @@ pipeline {
     }
     stage("Build the container image") {
       steps {
-        sh 'finch build --tag finch-basic:latest'
+        dir('01-basic') {
+          sh 'finch build --tag finch-basic:latest'
+        }
       }
     }
-    stage("Verify image exists") {
+    stage("Verify image exists before run") {
       steps {
         sh 'finch image ls'
       }
@@ -39,12 +41,12 @@ pipeline {
         sh 'finch run --rm finch-basic:latest'
       }
     }
-    stage("Tag the image to get it ready to push to DockerHub") {
+    stage("Tag the image to get it ready to push to Docker Hub") {
       steps {
         sh 'finch tag finch-basic:latest $DH_CREDS_USR/finch-basic:latest'
       }
     }
-    stage("Verify image exists") {
+    stage("Verify image exists after tag for Docker Hub") {
       steps {
         sh 'finch image ls'
       }
