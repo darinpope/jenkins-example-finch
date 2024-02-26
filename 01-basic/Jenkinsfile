@@ -22,7 +22,11 @@ pipeline {
     }
     stage("Remove the image if it exists") {
       steps {
-        sh 'finch rm --force finch-basic:latest'
+        sh '''
+          finch rm --force finch-basic:latest
+          finch rm --force $DH_ENDPOINT/$DH_CREDS_USR/finch-basic:latest
+          finch image ls
+        '''
       }
     }
     stage("Build the container image") {
