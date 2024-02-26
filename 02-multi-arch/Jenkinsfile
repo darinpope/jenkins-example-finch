@@ -63,7 +63,7 @@ pipeline {
     }
     stage("Push the image") {
       steps {
-        sh 'finch push $REGSITRY_SERVER/$DH_CREDS_USR/finch-multi-arch:latest'
+        sh 'finch push --platform linux/arm64,linux/amd64 $REGSITRY_SERVER/$DH_CREDS_USR/finch-multi-arch:latest'
       }
     }
   }
