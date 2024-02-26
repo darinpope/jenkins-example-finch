@@ -1,10 +1,3 @@
 FROM cgr.dev/chainguard/wolfi-base
-
-WORKDIR /app
-
-RUN chown -R nonroot.nonroot /app/
-
-USER nonroot
-
-COPY hello.sh /app/
-ENTRYPOINT [ "/app/hello.sh" ]
+COPY hello.sh /usr/bin
+ENTRYPOINT [ "/usr/bin/hello.sh" ]
