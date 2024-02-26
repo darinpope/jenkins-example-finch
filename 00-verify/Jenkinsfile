@@ -3,7 +3,10 @@ pipeline {
   stages {
     stage("Verify finch installation") {
       steps {
-        sh 'finch --version'
+        sh '''
+          echo $PATH
+          finch --version
+        '''
       }
     }
     stage("Verify finch status") {
