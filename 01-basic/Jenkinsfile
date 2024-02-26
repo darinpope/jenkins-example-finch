@@ -1,0 +1,68 @@
+pipeline {
+  agent any
+  environment {
+    DH_CREDS=credentials('dockerhub-rwd-pat')
+  }
+  stages {
+    stage("Verify finch installation") {
+      steps {
+        sh 'finch --version'
+      }
+    }
+    stage("Verify finch status") {
+      steps {
+        sh 'finch vm status'
+      }
+    }
+    stage("Verify finch system info") {
+      steps {
+        sh 'finch system info'
+      }
+    }
+    stage("Remove the image if it exists") {
+      steps {
+        sh 'finch rm --force finch-basic:latest'
+      }
+    }
+    stage("Build the container image") {
+      steps {
+        sh 'finch build --tag finch-basic:latest'
+      }
+    }
+    stage("Verify image exists") {
+      steps {
+        sh 'finch image ls'
+      }
+    }
+    stage("Run the container") {
+      steps {
+        sh 'finch run --rm finch-basic:latest'
+      }
+    }
+    stage("Tag the image to get it ready to push to DockerHub") {
+      steps {
+        sh 'finch tag finch-basic:latest $DH_CREDS_USR/finch-basic:latest'
+      }
+    }
+    stage("Verify image exists") {
+      steps {
+        sh 'finch image ls'
+      }
+    }
+    stage("Login to Docker Hub") {
+      steps {
+        sh 'echo $DH_CREDS_PSW | finch login -u $DH_CREDS_USR --password-stdin docker.io'
+      }
+    }
+    stage("Push the image") {
+      steps {
+        sh 'finch push $DH_CREDS_USR/finch-basic:latest'
+      }
+    }
+  }
+  post {
+    always {
+      sh 'finch logout docker.io'
+    }
+  }
+}

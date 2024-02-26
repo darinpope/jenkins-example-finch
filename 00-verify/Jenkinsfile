@@ -1,0 +1,20 @@
+pipeline {
+  agent any
+  stages {
+    stage("Verify finch installation") {
+      steps {
+        sh 'finch --version'
+      }
+    }
+    stage("Verify finch status") {
+      steps {
+        sh 'finch vm status'
+      }
+    }
+    stage("Verify finch system info") {
+      steps {
+        sh 'finch system info'
+      }
+    }
+  }
+}
