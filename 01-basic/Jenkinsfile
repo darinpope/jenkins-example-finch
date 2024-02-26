@@ -2,7 +2,7 @@ pipeline {
   agent any
   environment {
     DH_CREDS=credentials('dockerhub-rwd-pat')
-    REGSITRY_SERVER='registry-1.docker.io'
+    REGISTRY_SERVER='registry-1.docker.io'
   }
   stages {
     stage("Verify finch installation") {
@@ -24,7 +24,7 @@ pipeline {
       steps {
         sh '''
           finch rmi --force finch-basic:latest
-          finch rmi --force $REGSITRY_SERVER/$DH_CREDS_USR/finch-basic:latest
+          finch rmi --force $REGISTRY_SERVER/$DH_CREDS_USR/finch-basic:latest
           finch image ls
         '''
       }
@@ -48,7 +48,7 @@ pipeline {
     }
     stage("Tag the image to get it ready to push to Docker Hub") {
       steps {
-        sh 'finch tag finch-basic:latest $REGSITRY_SERVER/$DH_CREDS_USR/finch-basic:latest'
+        sh 'finch tag finch-basic:latest $REGISTRY_SERVER/$DH_CREDS_USR/finch-basic:latest'
       }
     }
     stage("Verify image exists after tag for Docker Hub") {
@@ -58,21 +58,21 @@ pipeline {
     }
     stage("Login to Docker Hub") {
       steps {
-        sh 'echo $DH_CREDS_PSW | finch login -u $DH_CREDS_USR --password-stdin $REGSITRY_SERVER'
+        sh 'echo $DH_CREDS_PSW | finch login -u $DH_CREDS_USR --password-stdin $REGISTRY_SERVER'
       }
     }
     stage("Push the image") {
       steps {
-        sh 'finch push $REGSITRY_SERVER/$DH_CREDS_USR/finch-basic:latest'
+        sh 'finch push $REGISTRY_SERVER/$DH_CREDS_USR/finch-basic:latest'
       }
     }
   }
   post {
     always {
       sh '''
-        finch logout $REGSITRY_SERVER
+        finch logout $REGISTRY_SERVER
         finch rmi --force finch-basic:latest
-        finch rmi --force $REGSITRY_SERVER/$DH_CREDS_USR/finch-basic:latest
+        finch rmi --force $REGISTRY_SERVER/$DH_CREDS_USR/finch-basic:latest
         finch image ls
       '''
     }
