@@ -59,7 +59,7 @@ pipeline {
     }
     stage("Push the image") {
       steps {
-        sh 'finch push $DH_CREDS_USR/finch-basic:latest'
+        sh 'finch push $DH_ENDPOINT/$DH_CREDS_USR/finch-basic:latest'
       }
     }
   }
