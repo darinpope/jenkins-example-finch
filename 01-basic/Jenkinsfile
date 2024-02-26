@@ -53,7 +53,7 @@ pipeline {
     }
     stage("Login to Docker Hub") {
       steps {
-        sh 'echo $DH_CREDS_PSW | finch login -u $DH_CREDS_USR --password-stdin docker.io'
+        sh 'echo $DH_CREDS_PSW | finch login -u $DH_CREDS_USR --password-stdin registry-1.docker.io'
       }
     }
     stage("Push the image") {
@@ -64,7 +64,7 @@ pipeline {
   }
   post {
     always {
-      sh 'finch logout docker.io'
+      sh 'finch logout registry-1.docker.io'
     }
   }
 }
